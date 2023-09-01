@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.18;
 
 import "../chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract DataConsumerV3 {
     AggregatorV3Interface internal dataFeed;
 
-    address internal constant ETH_USD = 0x694AA1769357215DE4FAC081bf1f309aDC325306;
-    constructor() {
+    constructor(address _pair) {
         dataFeed = AggregatorV3Interface(
-            ETH_USD
+            _pair
         );
     }
 
@@ -17,7 +16,6 @@ contract DataConsumerV3 {
      * Returns the latest answer.
      */
     function getLatestData() public view returns (int) {
-        // prettier-ignore
         (
             /* uint80 roundID */,
             int answer,

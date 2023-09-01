@@ -4,10 +4,10 @@ pragma solidity ^0.8.18;
 import "../chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract DataConsumerV3 {
-    AggregatorV3Interface internal dataFeed;
+    AggregatorV3Interface internal priceFeed;
 
     constructor(address _pair) {
-        dataFeed = AggregatorV3Interface(
+        priceFeed = AggregatorV3Interface(
             _pair
         );
     }
@@ -22,7 +22,7 @@ contract DataConsumerV3 {
             /*uint startedAt*/,
             /*uint timeStamp*/,
             /*uint80 answeredInRound*/
-        ) = dataFeed.latestRoundData();
+        ) = priceFeed.latestRoundData();
         return answer;
     }
 }

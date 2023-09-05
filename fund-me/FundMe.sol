@@ -47,12 +47,20 @@ contract FundMe is DataConsumerV3 {
         
         // withdraw funds
         (bool success,) = payable(msg.sender).call{value: address(this).balance}("");
-        require(success, "call failed");
+        require(success, "call failed");     
     }   
 
     modifier onlyOwner() {
         // require(msg.sender == i_owner, "no");
         if(msg.sender != i_owner) { revert NotOwner();} // gas efficient because it's not storing string error
         _;
+    }
+
+    receive() external payable {
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
     }
 }

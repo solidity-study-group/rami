@@ -9,14 +9,18 @@ contract FundMe is DataConsumerV3 {
     // using PriceConverter for uint256; 
     address constant internal ETH_USD = 0x694AA1769357215DE4FAC081bf1f309aDC325306; // on sepolia
 
-    constructor() DataConsumerV3(ETH_USD) {}
+    address internal owner;
+
+    constructor() DataConsumerV3(ETH_USD) {
+        owner = msg.sender;
+    }
 
     uint256 public minUsd = 5e18;
     address[] public funders;
     mapping(address funder => uint amount) funderToAmount;
 
     function fund() public payable {
-        require(PriceConverter.getConversionRate(getPrice(), msg.value) >= minUsd, "not enough ETH");
+        require(PriceConverter.getConversionRate(getPrice(), msg.value) >= minUsd, "cheap bastard");
         funders.push(msg.sender);
         funderToAmount[msg.sender] += msg.value;
     }
@@ -30,7 +34,7 @@ contract FundMe is DataConsumerV3 {
         return priceFeed.version();
     }
 
-    function withdraw() public {
+    function withdraw() public onlyOwner {
         // reseting, noticed check-effects interactions pattern
         uint length = funders.length;
         for(uint i; i<length;) { // gas-efficioont loop
@@ -43,6 +47,10 @@ contract FundMe is DataConsumerV3 {
         // withdraw funds
         (bool success,) = payable(msg.sender).call{value: address(this).balance}("");
         require(success, "call failed");
-
     }   
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "no");
+        _;
+    }
 }

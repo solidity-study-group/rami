@@ -4,6 +4,8 @@ pragma solidity ^0.8.18;
 import { DataConsumerV3 } from "./DataConsumerV3.sol";
 import { PriceConverter } from "./PriceConverter.sol";
 
+error NotOwner();
+
 contract FundMe is DataConsumerV3 {
     // using PriceConverter for uint256; 
     address constant internal ETH_USD = 0x694AA1769357215DE4FAC081bf1f309aDC325306; // on sepolia
@@ -49,7 +51,8 @@ contract FundMe is DataConsumerV3 {
     }   
 
     modifier onlyOwner() {
-        require(msg.sender == i_owner, "no");
+        // require(msg.sender == i_owner, "no");
+        if(msg.sender != i_owner) { revert NotOwner();} // gas efficient because it's not storing string error
         _;
     }
 }

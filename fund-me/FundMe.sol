@@ -4,23 +4,22 @@ pragma solidity ^0.8.18;
 import { DataConsumerV3 } from "./DataConsumerV3.sol";
 import { PriceConverter } from "./PriceConverter.sol";
 
-
 contract FundMe is DataConsumerV3 {
     // using PriceConverter for uint256; 
     address constant internal ETH_USD = 0x694AA1769357215DE4FAC081bf1f309aDC325306; // on sepolia
 
-    address internal owner;
+    address internal immutable i_owner;
 
     constructor() DataConsumerV3(ETH_USD) {
-        owner = msg.sender;
+        i_owner = msg.sender;
     }
 
-    uint256 public minUsd = 5e18;
+    uint256 public constant MIN_USD = 5e18;
     address[] public funders;
     mapping(address funder => uint amount) funderToAmount;
 
     function fund() public payable {
-        require(PriceConverter.getConversionRate(getPrice(), msg.value) >= minUsd, "cheap bastard");
+        require(PriceConverter.getConversionRate(getPrice(), msg.value) >= MIN_USD, "cheap bastard");
         funders.push(msg.sender);
         funderToAmount[msg.sender] += msg.value;
     }
@@ -50,7 +49,7 @@ contract FundMe is DataConsumerV3 {
     }   
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "no");
+        require(msg.sender == i_owner, "no");
         _;
     }
 }

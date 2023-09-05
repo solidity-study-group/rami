@@ -6,7 +6,7 @@ import { PriceConverter } from "./PriceConverter.sol";
 
 
 contract FundMe is DataConsumerV3 {
-    // using PriceConverter for uint256;
+    // using PriceConverter for uint256; 
     address constant internal ETH_USD = 0x694AA1769357215DE4FAC081bf1f309aDC325306; // on sepolia
 
     constructor() DataConsumerV3(ETH_USD) {}
@@ -29,4 +29,20 @@ contract FundMe is DataConsumerV3 {
     function getVersion() public view returns(uint256) {
         return priceFeed.version();
     }
+
+    function withdraw() public {
+        // reseting, noticed check-effects interactions pattern
+        uint length = funders.length;
+        for(uint i; i<length;) { // gas-efficioont loop
+            funderToAmount[funders[i]] = 0;
+            unchecked { ++i; } 
+        }
+
+        funders = new address[](0); 
+        
+        // withdraw funds
+        (bool success,) = payable(msg.sender).call{value: address(this).balance}("");
+        require(success, "call failed");
+
+    }   
 }
